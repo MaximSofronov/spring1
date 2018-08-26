@@ -12,6 +12,7 @@ import java.util.Map;
 public class ProfilingHandlerBeanPostProcessor implements BeanPostProcessor {
 
     private Map<String, Class> map = new HashMap<String, Class>();
+    private ProfilingController controller = new ProfilingController();
 
     public Object postProcessBeforeInitialization(Object o, String s) throws BeansException {
         Class<?> beanClass = o.getClass();
@@ -22,17 +23,29 @@ public class ProfilingHandlerBeanPostProcessor implements BeanPostProcessor {
         return o;
     }
 
-    public Object postProcessAfterInitialization(Object o, String s) throws BeansException {
-        Class beanClass = map.get(s);
+    public Object postProcessAfterInitialization(final Object bean, String s) throws BeansException {
+        final Class beanClass = map.get(s);
 
-        if (beanClass!=null) {
+        if (beanClass != null) {
             return Proxy.newProxyInstance(beanClass.getClassLoader(), beanClass.getInterfaces(), new InvocationHandler() {
                 public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                    return null;
+                    if (controller.isEnabled()) {
+                        System.out.println("Профилирую...");
+
+                        final long before = System.nanoTime();
+                        Object retVal = method.invoke(bean, args);
+                        final long after = System.nanoTime();
+                        System.out.println(after - before);
+
+                        System.out.println("Всё");
+                        return retVal;
+                    } else {
+                        return method.invoke(bean, args);
+                    }
                 }
             });
         }
 
-        return o;
+        return bean;
     }
 }
