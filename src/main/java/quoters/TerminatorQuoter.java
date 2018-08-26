@@ -24,6 +24,7 @@ public class TerminatorQuoter implements Quoter {
         this.message = message;
     }
 
+    @PostConstruct
     public void sayQuote() {
 
         for (int i = 0; i < repeat; i++) {
