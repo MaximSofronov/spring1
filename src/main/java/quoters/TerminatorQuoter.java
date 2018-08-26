@@ -32,4 +32,8 @@ public class TerminatorQuoter implements Quoter {
             System.out.println("message: " + message);
         }
     }
+
+    public void setRepeat(int repeat) {
+        this.repeat = repeat;
+    }
 }
